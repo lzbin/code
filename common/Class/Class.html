@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="../zero.js"></script>
+</head>
+<body>
+
+<script>
+    var Person = zero.Class({
+        // 构造函数
+        constructor: function(name, age) {
+            this.name = name;
+            this.age = age;
+        },
+        // 添加静态方法
+        STATIC: {
+            AGE_OF_MAJORITY: 18
+        },
+        // 实例方法
+        members: {
+            sayHello: function() {
+                console.log('Hello from ' + this.name + '!');
+            },
+            // 实例方法
+            drinkAlcohol: function() {
+                this.age < this.constructor.AGE_OF_MAJORITY ?
+                        console.log('Too young! Drink milk instead!') :
+                        console.log('Whiskey or beer?');
+            }
+        }
+    });
+
+    //Dreamer 继承 Person
+    var Dreamer = zero.Class(Person, {
+        // 构造方法
+        constructor: function(name, age, dream) {
+            Dreamer.Super.call(this, name, age);
+            this.dream = dream;
+        },
+        // 实例方法
+        members: {
+            sayHello: function() {
+                Dreamer.Super.prototype.sayHello.call(this);
+                console.log('I dream of ' + this.dream + '!');
+            },
+            // 实例方法
+            wakeUp: function() {
+                console.log(this.constructor.AGE_OF_MAJORITY);
+                console.log('Wake up!');
+            }
+        }
+
+    });
+
+
+
+
+    var john = new Person('John', 17);
+    john.sayHello();
+    john.drinkAlcohol();
+
+    var sylvester = new Dreamer('Sylvester', 30, 'eating Tweety');
+    sylvester.sayHello(); //log "Hello from Sylvester! I dream of eating Tweety!"
+    sylvester.drinkAlcohol();
+    sylvester.wakeUp(); //log "Wake up!"
+</script>
+
+</body>
+</html>

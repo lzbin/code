@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>layer-更懂你的web弹窗解决方案</title>
+<script src="http://libs.baidu.com/jquery/1.9.1/jquery.min.js"></script>
+<script src="layer.js"></script>
+
+</head>
+<body>
+<button id="test1">小小提示层</button>
+<button id="test2">自定义内容</button>
+<button id="test4">loading层</button>
+<button id="test5">tips</button>
+
+<script>
+
+    $('#test1').on('click', function(){
+        layer.msg('Hello layer');
+    });
+    $('#test2').on('click', function(){
+        layer.open({
+            type: 1,
+            area: ['600px', '360px'],
+            shadeClose: true, //点击遮罩关闭
+            content: '\<\div style="padding:20px;">自定义内容\<\/div>'
+        });
+    });
+    //弹出一个loading层
+    $('#test4').on('click', function(){
+        var ii = layer.load();
+        //此处用setTimeout演示ajax的回调
+        setTimeout(function(){
+            layer.close(ii);
+        }, 1000);
+    });
+    $('#test5').on('click', function(){
+        layer.tips('Hello tips!', '#test5');
+    });
+</script>
+</body>
+</html>

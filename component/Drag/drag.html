@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="gbk">
+    <title>JavaScript拖放效果</title>
+    <style type="text/css"> </style>
+</head>
+<body id="body">
+<div id="drag-wrap" style="height: 300px;margin:10px;border:5px solid #FF8000;background:#8080C0;position: relative;">
+    <div class="draggable" id="drag" style="width:600px;height: 89px;position: absolute;top: 100px;left:100px;background:#eee;border:1px solid #aceaac;cursor: move;">拖动div</div>
+</div>
+<input id="idReset" type="button" value="复位" />
+<input id="idLock" type="button" value="锁定全部" />
+<input id="idLockX" type="button" value="锁定水平" />
+<input id="idLockY" type="button" value="锁定垂直" />
+<input id="idLimit" type="button" value="范围锁定" />
+<input id="idLimitOff" type="button" value="取消范围锁定" />
+<br />拖放状态：<span id="idShow">未开始</span>
+<script type="text/javascript">
+    /**
+     *工具函数
+     */
+    var isIE = (document.all) ? true : false ;
+
+    var $$ = function(id){
+        return "string" == typeof id ? document.getElementById(id) : id;
+    };
+
+    var Class = {
+        create: function() {
+            return function() { this.initialize.apply(this, arguments); }
+        }
+    };
+
+    var Extend = function(destination,source){
+        for(var property in source){
+            destination[property] = source[property];
+        }
+    };
+
+    var BindAsEventListener = function(object,func){
+        return function(event){
+            return func.call(object,event || window.event);
+        }
+    };
+
+    var Bind = function(object,func){
+        return function(){
+            return func.apply(object,arguments);
+        }
+    };
+
+    /**
+     *跨浏览器事件对象
+     */
+    var EventUtil = {
+        //事件注册处理程序
+        addEventHandler:function(oTarget,sEventType,fnHandler){
+            if(oTarget.addEventListener){
+                oTarget.addEventListener(sEventType,fnHandler,false);
+            }else if(oTarget.attachEvent){
+                oTarget.attachEvent("on"+sEventType,fnHandler);
+            }else{
+                oTarget["on"+sEventType] = fnHandler;
+            }
+        },
+
+        //事件移除处理程序
+        removeEventHandler:function(oTarget,sEventType,fnHandler){
+            if(oTarget.removeEventListener){
+                oTarget.removeEventListener(sEventType,fnHandler,false);
+            }else if(oTarget.detachEvent){
+                oTarget.detachEvent("on"+sEventType,fnHandler);
+            }else{
+                oTarget["on"+sEventType] = null;
+            }
+        },
+        getEvent:function(event){
+            return event ? event : window.event;
+        },
+        getTarget:function(event){
+            return event.target || event.srcElement;
+        }
+    };
+
+    /**
+     *拖放程序
+     */
+    var Drag= Class.create();
+
+    Drag.prototype = {
+        //初始化对象
+        initialize:function(drag,options){
+            this.Drag = $$(drag);//拖放对象
+            this._x = this._y = 0;//记录鼠标相对于拖放对象的位置
+            //事件对象(用于绑定移除事件)
+            this._fM = BindAsEventListener(this, this.Move);
+            this._fS = Bind(this, this.Stop);
+            this.Drag.style.position = "absolute";
+            this.marginLeft = this.marginTop = 0;//记录margin
+            //设置参数
+            this.setOptions(options);
+            //获取相关参数及类型转换
+            this.Limit = !!this.options.Limit;//转换为布尔型
+            this.mxLeft = parseInt(this.options.mxLeft);
+            this.mxRight = parseInt(this.options.mxRight);
+            this.mxTop = parseInt(this.options.mxTop);
+            this.mxBottom = parseInt(this.options.mxBottom);
+
+            this.Lock = !!this.options.Lock;
+            this.LockX = !!this.options.LockX;
+            this.LockY = !!this.options.LockY;
+
+            this.onStart = this.options.onStart;
+            this.onMove = this.options.onMove;
+            this.onStop = this.options.onStop;
+            this._Handle = $$(this.options.Handle) || this.Drag;
+            this._mxContainer = $$(this.options.mxContainer) || null;
+            //监听拖动对象mousedown事件
+            EventUtil.addEventHandler(this.Drag, "mousedown",
+                    BindAsEventListener(this, this.Start));
+
+        },
+        //准备拖动
+        Start:function(oEvent){
+            if(this.Lock){return;}//如果锁定则不执行
+            //记录mousedown触发时鼠标相对于拖放对象的位置
+            this._x = oEvent.clientX - this.Drag.offsetLeft;
+            this._y = oEvent.clientY - this.Drag.offsetTop;
+            //监听mousemove 和 mouseup事件
+            EventUtil.addEventHandler(document, "mousemove", this._fM);
+            EventUtil.addEventHandler(document, "mouseup", this._fS);
+        },
+        //拖动
+        Move:function(oEvent){
+            //设置移动参数
+            var iLeft = oEvent.clientX - this._x , iTop = oEvent.clientY - this._y;
+            //设置范围限制
+            if(this.Limit){
+                //设置范围参数
+                var mxLeft = this.mxLeft, mxRight = this.mxRight, mxTop =
+                        this.mxTop, mxBottom = this.mxBottom;
+                //如果设置了容器，再修正范围参数
+                if(!!this._mxContainer){
+                    mxLeft = Math.max(mxLeft, 0);
+                    mxTop = Math.max(mxTop, 0);
+                    mxRight = Math.min(mxRight, this._mxContainer.clientWidth);
+                    mxBottom = Math.min(mxBottom, this._mxContainer.clientHeight);
+                }
+                //修正移动参数
+                iLeft = Math.max(Math.min(iLeft, mxRight - this.Drag.offsetWidth), mxLeft);
+                iTop = Math.max(Math.min(iTop, mxBottom - this.Drag.offsetHeight), mxTop);
+            }
+
+            //XY锁定
+            if(!this.LockX)this.Drag.style.left = iLeft + "px";
+            if(!this.LockY)this.Drag.style.top = iTop + "px";
+            //执行附加程序
+            this.onMove();
+        },
+
+        //停止拖动
+        Stop:function(){
+            EventUtil.removeEventHandler(document, "mousemove", this._fM);
+            EventUtil.removeEventHandler(document, "mouseup", this._fS);
+            //执行附加程序
+            this.onStop();
+        },
+        //设置默认参数
+        setOptions:function(options){
+            this.options = {//默认值
+                Handle:  "",//设置触发对象（不设置则使用拖放对象）
+                Limit:   false,//是否设置范围限制(为true时下面参数有用,可以是负数)
+                mxLeft:  0,//左边限制
+                mxRight:        9999,//右边限制
+                mxTop:            0,//上边限制
+                mxBottom:        9999,//下边限制
+                mxContainer:    "",//指定限制在容器内
+                LockX:            false,//是否锁定水平方向拖放
+                LockY:            false,//是否锁定垂直方向拖放
+                Lock:            false,//是否锁定
+                Transparent:    false,//是否透明
+                onStart:        function(){},//开始移动时执行
+                onMove:            function(){},//移动时执行
+                onStop:            function(){}//结束移动时执行
+            };
+            Extend(this.options, options || {});
+        }
+    };
+
+    //初始化拖动对象
+    var drag = new Drag('drag',{mxContainer:'drag-wrap',Limit:true,
+        onStart: function(){ $$("idShow").innerHTML = "开始拖放"; },
+        onMove: function(){
+            $$("idShow").innerHTML =
+                    "left："+this.Drag.offsetLeft+"；top:"+this.Drag.offsetTop; },
+        onStop: function(){ $$("idShow").innerHTML = "结束拖放"; }
+    });
+
+
+
+
+    $$("idReset").onclick = function(){
+        drag.Limit = true;
+        drag.mxLeft = drag.mxTop = 0;
+        drag.mxRight = drag.mxBottom = 9999;
+        drag.LockX = drag.LockY = drag.Lock = false;
+        $$("idShow").innerHTML = "复位";
+    };
+    $$("idLock").onclick = function(){ drag.Lock = true;$$("idShow").innerHTML = "锁定全部";};
+    $$("idLockX").onclick = function(){ drag.LockX = true; $$("idShow").innerHTML = "锁定水平";};
+    $$("idLockY").onclick = function(){ drag.LockY = true; $$("idShow").innerHTML = "锁定垂直";};
+    $$("idLimit").onclick = function(){
+        drag.mxRight = drag.mxBottom = 200;
+        drag.Limit = true;$$("idShow").innerHTML = "范围锁定";
+    };
+    $$("idLimitOff").onclick = function(){
+        drag.Limit = false; $$("idShow").innerHTML = "取消范围锁定";
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+.w-msgbox-mask {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    filter:alpha(opacity=30);
+    opacity: 0.3;
+    z-index: 101;
+    background-color: rgb(0, 0, 0);
+}
+
+.w-msgbox-layer {
+    position: absolute;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: normal;
+    font-stretch: normal;
+    font-size: 11px;
+    border: 1px solid #e8e9eb;
+    padding: 1px;
+    line-height: 22px;
+    z-index: 102;
+    background-color: rgb(255, 255, 255);
+}
+.w-msgbox-layer .w-msgbox-title{
+    position: relative;
+    height: 40px;
+    line-height: 40px;
+    border-bottom: 1px solid #e8e9eb;
+    background: #e8e9eb;
+    padding: 0 10px;
+    cursor: move;
+}
+.w-msgbox-layer .w-msgbox-close{
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    cursor: pointer;
+    color: #fff;
+    background: #FF0000;
+}

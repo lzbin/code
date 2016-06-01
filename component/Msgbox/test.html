@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>可拖动弹出层</title>
+    <link rel="stylesheet" href="msgbox.css"/>
+    <style type="text/css">
+        .button1 {
+            background: #ebebeb;
+            border: 1px solid #888888;
+            color: #333333;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            height: 23px;
+            cursor: pointer
+        }
+    </style>
+
+</head>
+<body>
+<input type="button" value="  点这里  " class="button1" id="btn"/>
+<!--<select>
+    <option>获得事件Event对象，用于兼容IE和FireFox</option>
+</select>-->
+
+<script language="javascript">
+    (function (window) {
+        var common = {//事件注册处理程序
+            addEvent:function(oTarget,sEventType,fnHandler){
+                if(oTarget.addEventListener){
+                    oTarget.addEventListener(sEventType,fnHandler,false);
+                }else if(oTarget.attachEvent){
+                    oTarget.attachEvent("on"+sEventType,fnHandler);
+                }else{
+                    oTarget["on"+sEventType] = fnHandler;
+                }
+            },
+
+            //事件移除处理程序
+            removeEvent:function(oTarget,sEventType,fnHandler){
+                if(oTarget.removeEventListener){
+                    oTarget.removeEventListener(sEventType,fnHandler,false);
+                }else if(oTarget.detachEvent){
+                    oTarget.detachEvent("on"+sEventType,fnHandler);
+                }else{
+                    oTarget["on"+sEventType] = null;
+                }
+            },
+            cloneObj: function (oldObj) { //复制对象方法
+                if (typeof(oldObj) != 'object') return oldObj;
+                if (oldObj == null) return oldObj;
+                var newObj = {};
+                for (var i in oldObj)
+                    newObj[i] = common.cloneObj(oldObj[i]);
+                return newObj;
+            },
+            extend: function () { //扩展对象
+                var args = arguments;
+                if (args.length < 2) return;
+                var temp = this.cloneObj(args[0]); //调用复制对象方法
+                for (var n = 1; n < args.length; n++) {
+                    for (var i in args[n]) {
+                        temp[i] = args[n][i];
+                    }
+                }
+                return temp;
+            },
+            createEle: function (tag, cls) {
+                var d = document.createElement(tag);
+                cls && (d.className = cls);
+                return d;
+            },
+            removeEle: function(removeObj){
+                removeObj.parentNode.removeChild(removeObj);
+            }
+        };
+        // 获得事件Event对象，用于兼容IE和FireFox
+        function getEvent(event) {
+            return event || window.event;
+        }
+
+        var defaults = {
+            title: '标题',
+            content: '<div></div>',
+            width: '',
+            height: 89,
+            iWidth: document.documentElement.clientWidth,
+            iHeight: document.documentElement.clientHeight,
+            moveable: null,
+            docMouseMoveEvent: null,
+            docMouseUpEvent: null,
+            closeBtn: null,
+            msgContent: null,
+            onRender: function(){},
+            onRemove: function(){},
+            onSure: function(){},
+            onCancal:function(){}
+        };
+
+
+        function MsgBox(options) {
+            this.opts = common.extend(defaults, options);
+            this.moveY = 0;
+            this.moveX = 0;
+            this.moveTop = 0;
+            this.moveLeft = 0;
+        }
+        MsgBox.index = 1;
+        MsgBox.prototype = {
+            init: function () {
+                this.render();
+                this.listen();
+            },
+            render: function () {
+                var that = this,frameEle = document.createDocumentFragment();
+                that.createCover();
+                that.createBox();
+                frameEle.appendChild(that.maskBox);
+                frameEle.appendChild(that.msgBox);
+                that.msgBox.appendChild(that.createContent());
+                that.msgBox.appendChild(that.createFooter());
+                document.body.appendChild(frameEle);
+
+                that.opts.onRender();
+            },
+            createCover: function(){
+                var that = this;
+                that.maskBox = common.createEle("div", 'w-msgbox-mask');
+                that.maskBox.style.cssText = "width:" + that.getPos().clientW + "px;height:" + Math.max(document.body.clientHeight, that.getPos().clientH) + "px;";
+                return that.maskBox;
+            },
+            createBox: function(){
+                var that = this;
+                that.msgBox = common.createEle("div", 'w-msgbox-layer');
+                that.msgBox.appendChild(this.createHeader());
+                that.msgBox.style.cssText = "top:" + (that.opts.iHeight - that.opts.height) / 2 + "px;left:" + (that.opts.iWidth - that.opts.width) / 2 + "px;width:" + that.opts.width + "px;height:" + that.opts.height + "px;";
+                return that.msgBox;
+            },
+            createHeader: function(){
+                var that = this;
+                that.titlebar = common.createEle('div','w-msgbox-title');
+                that.titleTxt = common.createEle('span','w-msgbox-title-txt');
+                that.closeBtn = common.createEle('span','w-msgbox-close');
+                that.titleTxt.innerHTML = that.opts.title;
+                that.closeBtn.innerHTML = '×';
+                that.titlebar.appendChild(that.titleTxt);
+                that.titlebar.appendChild(that.closeBtn);
+                return that.titlebar;
+            },
+            createContent: function(){
+                var that = this;
+                that.msgContent = common.createEle('div','w-msgbox-content');
+                that.msgContent.innerHTML = that.opts.content;
+                return that.msgContent;
+            },
+            createFooter: function(){
+                var that = this;
+                that.footer = common.createEle('div','w-msgbox-footer');
+                that.footer.innerHTML = '这里放按钮';
+                return that.footer;
+            },
+            getPos: function(){
+                var top,left;
+                return {
+                    clientW: document.documentElement.clientWidth,
+                    clientH: document.documentElement.clientHeight,
+                    top:0,
+                    left: 0
+                }
+            },
+            move: function(){
+                var that = this;
+                common.addEvent(that.titlebar,'mousedown',function (e) {
+                    var evt = getEvent(e);
+                    that.opts.moveable = true;
+                    that.moveY = evt.clientY;
+                    that.moveX = evt.clientX;
+                    that.moveTop = parseInt(that.msgBox.style.top);
+                    that.moveLeft = parseInt(that.msgBox.style.left);
+                    document.onmousemove = function (event) {
+                        if (that.opts.moveable) {
+                            var evt = getEvent(event);
+                            var x = that.moveLeft + evt.clientX - that.moveX;
+                            var y = that.moveTop + evt.clientY - that.moveY;
+                            if (x > 0 && ( x + that.opts.width < that.opts.iWidth) && y > 0 && (y + that.opts.height < that.opts.iHeight)) {
+                                that.msgBox.style.left = x + "px";
+                                that.msgBox.style.top = y + "px";
+                            }
+                        }
+                        return false;
+                    };
+                    document.onmouseup = function () {
+                        if (that.opts.moveable) {
+                            document.onmousemove = function(){return false};
+                            document.onmouseup = function(){return false};
+                            that.opts.moveable = false;
+                            that.opts.moveX = 0;
+                            that.opts.moveY = 0;
+                            that.opts.moveTop = 0;
+                            that.opts.moveLeft = 0;
+                        }
+                    };
+                });
+            },
+            listen: function () {
+                var that = this;
+
+                that.move();//拖动
+
+                common.addEvent(that.closeBtn,'click',function () {
+                    that.destory(that);
+                });
+                common.addEvent(that.maskBox,'click',function(){
+                    that.destory(that);
+                });
+            },
+            center: function(){
+                var that = this;
+
+            },
+            destory: function(context){
+                common.removeEle(context.maskBox);
+                common.removeEle(context.msgBox);
+            }
+
+        };
+        return window.MsgBox = MsgBox;
+    })(window);
+
+    var btn = document.getElementById('btn');
+    var msgContent;
+
+    btn.onclick = function () {
+        msgContent = new MsgBox({
+            title: '标题',
+            content: '这里是内容哦，写在这儿',
+            width: 600,
+            onRender: function(){
+                console.log('render');
+            }
+        });
+        msgContent.init();
+
+        msgContent1 = new MsgBox({
+            title: '标题',
+            content: '这里是内容哦，写在这儿',
+            width: 600,
+            onRender: function(){
+                console.log('render');
+            }
+        });
+        msgContent1.init();
+    };
+
+</script>
+</body>
+</html>

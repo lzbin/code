@@ -1,0 +1,304 @@
+<!doctype html>
+<html >
+<head>
+    <meta charset="UTF-8">
+    <title><a href="http://www.ln920.cn/tag/js" title="查看更多关于js的文章" target="_blank">js</a><a href="http://www.ln920.cn/tag/%e6%97%a5%e5%8e%86" title="查看更多关于日历的文章" target="_blank">日历</a></title>
+    <!--<link rel="stylesheet" href="ycanlendar.css" />-->
+    <style rel="stylesheet" type="text/css">
+        /**
+         *
+         */
+        .y-canlendar-table {
+            width:99.9%;
+            border-collapse:collapse;
+        }
+
+        .y-canlendar {
+            position:absolute;
+            z-index:1127;
+            font-family:verdana,arial,sans-serif;
+            font-size:14px;
+            width:260px;
+            height:320px;
+            border:1px solid #dbdbdb;
+            color:#626262;
+        }
+        .y-canlendar a {text-decoration:none;}
+        .y-canlendar-header {
+            height:36px;
+            line-height:36px;
+            background-color:#f3f3f3;
+        }
+        .y-canlendar-header-table-left {padding-left:8px;}
+        .y-canlendar-header-table-center {text-align:center;}
+        .y-canlendar-header-table-right {text-align:right; padding-right:8px;}
+        .y-canlendar-content {
+            margin-top:8px;
+        }
+        .y-canlendar-content table {
+            text-align:center;
+            line-height:32px;
+        }
+        .y-canlendar-content th {
+            background-color:#eee;
+        }
+        .y-canlendar-content td:hover, .y-canlendar-content td.active {
+            background-color:#9ebef3;
+            color:#fff;
+            cursor:pointer;
+        }
+    </style>
+</head>
+<body>
+<input type="text" id="can" value="" onclick="yCanlendar.show(this)"/>
+
+<script>
+    var yCanlendar = (function(){
+        'use strict';
+
+        function YCanlendar() {
+            this.doc = document;
+            this.body = this.doc.body;
+            this.container = null;  // 容器
+            this.header = null;  // header
+            this.content = null;  // content
+            this.handler = null;  // input handler
+            this.options = {
+                separator : '-'  // 日期分割 xxxx-xx-xx
+                ,beginYear : 1900
+                ,endYear : 2060
+            };
+            this.nowYear = 1980;
+            this.nowMonth = 0;
+            this.nowDate = 1;
+
+            this.headerHtml =
+                    '<table class="y-canlendar-table">\
+                        <tr>\
+                            <td class="y-canlendar-header-table-left">{prevMonth}</td>\
+                            <td class="y-canlendar-header-table-center">{year_month}</td>\
+                            <td class="y-canlendar-header-table-right">{nextMonth}</td>\
+                        </tr>\
+                    </table>';
+
+            this.contenthtml =
+                    '<table class="y-canlendar-table">\
+                        <tr>\
+                            <th>日</th>\
+                            <th>一</th>\
+                            <th>二</th>\
+                            <th>三</th>\
+                            <th>四</th>\
+                            <th>五</th>\
+                            <th>六</th>\
+                        </tr>\
+                        {data}\
+                    </table>';
+
+            this.init();
+        }
+
+        // prototype
+        YCanlendar.prototype = {
+            constructor : YCanlendar
+            ,init : function(){
+                this.container = this.doc.createElement('div');
+                this.header = this.doc.createElement('div');
+                this.content = this.doc.createElement('div');
+
+                this.container.className = 'y-canlendar';
+                this.container.id = 'y_canlendar';
+                this.header.className = 'y-canlendar-header';
+                this.content.className = 'y-canlendar-content';
+
+                this.container.appendChild(this.header);
+                this.container.appendChild(this.content);
+            }
+            // 是否闰年
+            ,isLeapYear : function(year) {
+                if(0 == year % 400 || (0 == year % 4 && 0 != year % 100)) {
+                    return true;
+                }
+                return false;
+            }
+            // 得到一个月的天数
+            ,getMonthDayNumber : function(year, month) {
+                var days = 0;
+                if(2 == month) {
+                    days = this.isLeapYear(year) ? 29 : 28;
+
+                } else if(4 == month || 6 == month || 9 == month || 11 == month) {
+                    days = 30;
+
+                } else {
+                    days = 31;
+                }
+
+                return days;
+            }
+            // 得到一个月的第一天是周几
+            ,getMonthFirstDayWeek : function(year, month) {
+                var d = new Date(year, month, 1);
+
+                return d.getDay();
+            }
+
+            ,nextYear : function(){
+                this.nowYear++;
+
+                this.renderheader();
+                this.renderContent();
+            }
+            ,nextMonth : function(){
+                this.nowMonth++;
+                if(this.nowMonth > 11) {
+                    this.nowYear++;
+                    this.nowMonth = 0;
+                }
+
+                this.renderHeader();
+                this.renderContent();
+            }
+            ,prevYear : function(){
+                this.nowYear--;
+
+                this.renderheader();
+                this.renderContent();
+            }
+            ,prevMonth : function(){
+                this.nowMonth--;
+                if(this.nowMonth < 0) {
+                    this.nowYear--;
+                    this.nowMonth = 11;
+                }
+
+                this.renderHeader();
+                this.renderContent();
+
+            }
+            ,chgYear : function(obj) {
+                var val = obj.value;
+                this.nowYear = val;
+
+                this.renderheader();
+                this.renderContent();
+            }
+            ,chgMonth : function(obj) {
+                var val = obj.value;
+                this.nowMonth = val;
+
+                this.renderHeader();
+                this.renderContent();
+            }
+
+            // render header html
+            ,renderHeader : function() {
+                var html = this.headerHtml;
+                var year = '<select id="y_canlendar_year" onchange="yCanlendar.chgYear(this)">{d}</select>';
+                var month = '<select id="y_canlendar_month" onchange="yCanlendar.chgMonth(this)">{d}</select>';
+                var str = '';
+
+                // 替换前后月
+                html = html.replace('{prevMonth}', '<a onclick="yCanlendar.prevMonth()" href="javascript:;"><</a>');
+                html = html.replace('{nextMonth}', '<a onclick="yCanlendar.nextMonth()" href="javascript:;">></a>');
+
+                for(var y=this.options.beginYear; y<this.options.endYear; y++) {
+                    str += '<option value="'+ y +'" '+ (this.nowYear == y ? 'selected="selected"' : '') +'>' + y + '</option>';
+                }
+                year = year.replace('{d}', str);
+                str = '';
+                for(var m=1; m<=12; m++) {
+                    str += '<option value="'+ m +'" '+ (this.nowMonth == m-1 ? 'selected="selected"' : '') +'>' + m + '</option>';
+                }
+                month = month.replace('{d}', str);
+
+                // 替换年月
+                html = html.replace('{year_month}', year + '年' + month + '月');
+
+                this.header.innerHTML = html;
+            }
+            // render content html
+            ,renderContent : function() {
+                var nowYear = this.nowYear;  // 2015
+                var nowMonth = this.nowMonth;  // 0 - 11 几月
+                var nowDate = this.nowDate;  // 1 - 31 几号
+                var nowMonthTotalDays = this.getMonthDayNumber(nowYear, nowMonth + 1);
+                var firstDay = this.getMonthFirstDayWeek(nowYear, nowMonth);  // 周几
+                var html = this.contentHtml;
+                var totalRows = Math.ceil(nowMonthTotalDays / 7);
+
+                var day = 0;
+                var tmpArr = [];
+
+                // 处理第一行
+                tmpArr.push('<tr>');
+                for(var j=1; j<=7; j++) {
+                    j <= firstDay ? tmpArr.push('<td> </td>') :
+                            (day++, day == nowDate ? tmpArr.push('<td class="active">'+ day +'</td>') :
+                                    tmpArr.push('<td onclick="yCanlendar.setdata()">'+ day +'</td>')) ;
+                }
+                tmpArr.push('</tr>');
+
+                // 处理其他行
+                for(var row=1; row<totalRows; row++) {
+                    tmpArr.push('<tr>');
+                    for(var i=0; i<7; i++) {
+                        day++;
+                        if(day > nowMonthTotalDays) break;
+
+                        day == nowDate ?
+                                tmpArr.push('<td class="active">'+ day +'</td>') :
+                                tmpArr.push('<td>'+ day +'</td>');
+                    }
+                    tmpArr.push('</tr>');
+                }
+                tmpArr = tmpArr.join('');
+
+                this.content.innerhtml = html.replace('{data}', tmpArr);
+            }
+            // init static data
+            ,initData : function(obj) {
+                // year-month-day
+                if(undefined != obj && '' != obj.value) {
+                    var tmp = obj.value.split(this.options.separator);
+                    if(3 == tmp.length) {
+                        this.nowYear = parseInt(tmp[0]);
+                        this.nowMonth = parseInt(tmp[1]);
+                        this.nowDate = parseInt(tmp[2]);
+                    }
+
+                } else {
+                    var date = new Date();
+                    this.nowYear = date.getFullYear();  // 2015
+                    this.nowMonth = date.getMonth();  // 0 - 11 几月
+                    this.nowDate = date.getDate();  // 1 - 31 几号
+                    //this.nowDay = date.getDay();  // 0 - 6 周几
+                }
+            }
+            // show canlendar
+            ,show : function(obj, options){
+                this.handler = obj;
+                options = options || {};
+                for(key in options) {
+                    for(innerKey in this.options) {
+                        if(key == innerKey) {
+                            this.options[innerKey] = settings[key];
+                        }
+                    }
+                }
+
+                this.initData(obj);
+                this.renderheader();
+                this.renderContent();
+
+                this.body.appendChild(this.container);
+            }
+        };
+
+        return new YCanlendar();
+    })();
+
+
+</script>
+</body>
+</html>

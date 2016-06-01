@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN" id="page">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body style="height: 2000px;">
+<div style="font-size: 36px; position: fixed">434asdfasdfasdfsdf测试</div>
+<script>
+    function pageResponse(options) {
+        var ua = navigator.userAgent,
+            o = ua.match(/Windows Phone ([\d.]+)/),
+            inclusive = ua.match(/(Android);?[\s\/]+([\d.]+)?/),
+            containerWidth = document.documentElement.clientWidth,
+            height = document.documentElement.clientHeight,
+            a = containerWidth / height,
+            width = options.width || 320,
+            size = options.height || 504,
+            b = width / size,
+            tokenized = document.querySelectorAll(options.selectors),
+            index = tokenized.length,
+            udataCur = options.mode || "auto",
+            origin = options.origin || "left top 0",
+            PAGESIZE = udataCur == "contain" ? a > b ? height / size : containerWidth / width : udataCur == "cover" ? a < b ? height / size : containerWidth / width : containerWidth / width;
+
+        function start(value, attrs, count) {
+            var style = attrs.style;
+            style.width = width + "px";
+            style.height = size + "px";
+            style.webkitTransformOrigin = origin;
+            style.transformOrigin = origin;
+            style.webkitTransform = "scale(" + count + ")";
+            style.transform = "scale(" + count + ")";
+            if (value == "auto" && inclusive) {
+                document.body.style.height = size * count + "px";
+            } else {
+                if (value == "contain" || value == "cover") {
+                    style.position = "absolute";
+                    style.left = (containerWidth - width) / 2 + "px";
+                    style.top = (height - size) / 2 + "px";
+                    style.webkitTransformOrigin = "center center 0";
+                    style.transformOrigin = "center center 0";
+                    if (o) {
+                        document.body.style.msTouchAction = "none";
+                    } else {
+                        document.ontouchmove = function (evt) {
+                            evt.preventDefault();
+                        };
+                    }
+                }
+            }
+        }
+
+        for (; --index >= 0;) {
+            start(udataCur, tokenized[index], PAGESIZE);
+        }
+    }
+
+    function _fScale() {
+        pageResponse({
+            selectors: '#page',     //模块选择器，使用querySelectorAll的方法
+            mode: 'auto',     // auto || contain || cover ，默认模式为auto
+            width: '640',       //输入页面的宽度，只支持输入数值，默认宽度为320px
+            height: '1000'
+        });
+    }
+    _fScale();
+    window.onresize = _fScale;
+</script>
+</body>
+</html>

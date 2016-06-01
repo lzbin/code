@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <!--<script src="base.js"></script>-->
+    <script src="../../common/lib/pro.js"></script>
+    <style>
+
+        .try{
+            background: #31ACE2;
+        }
+    </style>
+</head>
+<body>
+    <div id="cc">给我个类名试试</div>
+    <input id="add" type="button" value="添加"/>
+    <input id="del" type="button" value="删除"/>
+    <script>
+        /*var add = findDom('#add');
+        var del = getId('del');
+        var cc = getId('cc');
+*/
+        /*add.onclick = function(){
+            addClass(cc,'try');
+        };
+        del.onclick = function(){
+            removeClass(cc,'try');
+        }*/
+
+        view = new pro.View();
+        console.log(view.find);
+    </script>
+</body>
+</html>

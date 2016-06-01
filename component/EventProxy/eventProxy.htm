@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="eventProxy.js"></script>
+</head>
+<body>
+<script>
+    function aEat(callback){
+
+        setTimeout(function(){
+            console.log("a吃完了。。。")
+            callback();
+        },1000);
+    }
+
+    function bEat(callback){
+        setTimeout(function(){
+            console.log("b吃完了。。。")
+            callback();
+        },1000);
+
+    }
+    var observer = new Observer();
+    observer.when("a-eat-ok","b-eat-ok",function(data){
+        console.log(data);
+        console.log("结账");
+    });
+
+    observer.addListener('a-eat-ok',function(data){
+        //console.log(data);
+    });
+
+    aEat(function(){
+        observer.fire('a-eat-ok','hhh');
+    })
+
+    bEat(function(){
+        observer.fire('b-eat-ok','ooo');
+    });
+</script>
+</body>
+</html>

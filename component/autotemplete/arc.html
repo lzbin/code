@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<div>
+    <input type="text" id="txtTest"/>
+    <div id="showDIv"></div>
+</div>
+<script src="js/Autotemplete.js"></script>
+<script>
+    window.onload = function () {
+        AutoComplete({
+            id: 'txtTest', //控件id
+            url: 'data.json', //数据
+            paraName:'name',
+            textFiled: 'name', //显示的文字的属性名
+            valueFiled: 'id', //获取value的属性名
+            select: function (val, text) {
+                console.log(val + '---' + text);
+            },
+            showdivId: 'showDIv' //下拉选择区域的id});
+        });
+
+    }
+</script>
+</body>
+</html>

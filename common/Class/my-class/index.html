@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+项目地址 <a href="https://github.com/jiem/my-class">https://github.com/jiem/my-class</a>
+<script>
+    /*globals define:true, window:true, module:true*/
+    (function () {
+        // Namespace object
+        var my = {};
+        // 保证AMD分模块可用
+        if (typeof define !== 'undefined')
+            define([], function () {
+                return my;
+            });
+        else if (typeof window !== 'undefined')
+        // 保证客户端可用
+            window.my = my;
+        else
+        // 保证后台可用
+            module.exports = my;
+
+        //============================================================================
+        // @method my.Class
+        // @params body:Object
+        // @params SuperClass:function, ImplementClasses:function..., body:Object
+        // @return function
+        my.Class = function () {
+
+            var len = arguments.length;
+            var body = arguments[len - 1];    // 最后一个参数是指定本身的方法
+            var SuperClass = len > 1 ? arguments[0] : null;     // 第一个参数是指继承的方法，实例和静态部分均继承
+            var hasImplementClasses = len > 2;    // 如果有第三个参数，那么第二个就是implementClass,这里其实只继承实例对象
+            var Class, SuperClassEmpty;
+
+            // 保证构造方法
+            if (body.constructor === Object) {
+                Class = function() {};
+            } else {
+                Class = body.constructor;
+                // 保证后面不覆盖constructor
+                delete body.constructor;
+            }
+            // 处理superClass部分
+            if (SuperClass) {
+                // 中间件实现实例属性的继承
+                SuperClassEmpty = function() {};
+                SuperClassEmpty.prototype = SuperClass.prototype;
+                Class.prototype = new SuperClassEmpty();    // 原型继承，解除引用
+                Class.prototype.constructor = Class;    // 保证constructor
+                Class.Super = SuperClass;    // 父对象访问接口
+
+                // 静态方法继承，重载superClass方法
+                extend(Class, SuperClass, false);
+            }
+
+            // 处理ImplementClass部分,其实只继承实例属性部分,除SuperClass #arguments[0]# 和 body #arguments[length-1]#
+            if (hasImplementClasses)
+                for (var i = 1; i < len - 1; i++)
+                        // implement是继承的实例属性部分, 重载父对象implementClass方法
+                    extend(Class.prototype, arguments[i].prototype, false);
+
+            // 处理本身声明body部分，静态要STATIC指定,实例部分要删除STATIC部分
+            extendClass(Class, body);
+
+            return Class;
+
+        };
+
+        //============================================================================
+        // @method my.extendClass
+        // @params Class:function, extension:Object, ?override:boolean=true
+        var extendClass = my.extendClass = function (Class, extension, override) {
+            // 静态部分继承静态部分
+            if (extension.STATIC) {
+                extend(Class, extension.STATIC, override);
+                // 保证实例部分不继承静态方法
+                delete extension.STATIC;
+            }
+            // 实例属性继继承实例部
+            extend(Class.prototype, extension.members, override);
+        };
+
+        //============================================================================
+        var extend = function (obj, extension, override) {
+            var prop;
+            // 其实这里的flase是表明，覆盖父对象的方法
+            if (override === false) {
+                for (prop in extension)
+                    if (!(prop in obj))
+                        obj[prop] = extension[prop];
+            } else {
+                // 这里其实不覆盖父对象的方法,包括toString
+                for (prop in extension)
+                    obj[prop] = extension[prop];
+                if (extension.toString !== Object.prototype.toString)
+                    obj.toString = extension.toString;
+            }
+        };
+
+    })();
+
+    var myLib = {};
+    (function() {
+        // 新建类
+        var Person = my.Class({
+            // 添加静态方法
+            STATIC: {
+                AGE_OF_MAJORITY: 18
+            },
+            // 构造函数
+            constructor: function(name, age) {
+                this.name = name;
+                this.age = age;
+            },
+            // 实例方法
+            members: {
+                sayHello: function() {
+                    console.log('Hello from ' + this.name + '!');
+                },
+                // 实例方法
+                drinkAlcohol: function() {
+                    this.age < Person.AGE_OF_MAJORITY ?
+                            console.log('Too young! Drink milk instead!') :
+                            console.log('Whiskey or beer?');
+                }
+            }
+
+
+        });
+        // 暴露给命名空间
+        myLib.Person = Person;
+
+    })();
+
+    var john = new myLib.Person('John', 19);
+
+    john.sayHello(); //log "Hello from John!"
+    john.drinkAlcohol(); //log "Too young! Drink milk instead!"
+
+    //继承类
+        //Dreamer 继承 Person
+        var Dreamer = my.Class(myLib.Person, {
+            // 构造方法
+            constructor: function(name, age, dream) {
+                Dreamer.Super.call(this, name, age);
+                this.dream = dream;
+            },
+            // 实例方法
+            members: {
+                sayHello: function() {
+                    superSayHello.call(this);
+                    console.log('I dream of ' + this.dream + '!');
+                },
+                // 实例方法
+                wakeUp: function() {
+                    console.log('Wake up!');
+                }
+            }
+
+        });
+        // Super访问父类
+        var superSayHello = Dreamer.Super.prototype.sayHello;
+        // 暴露给全局命名空间
+        myLib.Dreamer = Dreamer;
+
+    var sylvester = new myLib.Dreamer('Sylvester', 30, 'eating Tweety');
+    sylvester.sayHello(); //log "Hello from Sylvester! I dream of eating Tweety!"
+    sylvester.wakeUp(); //log "Wake up!"
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>my component</title>
+    <style>
+        h1{text-align: center;color:#626262;}
+    </style>
+    <!--<script src="../common/lib/require.js"></script>
+    <script src="../app.js"></script>
+    <script src="script/other.js"></script>-->
+</head>
+<body>
+<h1>my component</h1>
+<script>
+    var BaseClass = function() {}; // var BaseClass=new Function();
+    BaseClass.f1 = function(){//定义静态方法
+        console.log(' This is a static method ');
+    };
+    BaseClass.f1();//This is a static method
+    console.log(BaseClass)
+</script>
+</body>
+</html>

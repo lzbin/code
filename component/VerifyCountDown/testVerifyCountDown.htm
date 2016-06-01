@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+
+<div class="w-form-item"><div class="w-input"><input class="w-input-input" id="phone" name="phone" type="text" placeholder="手机号码"></div></div>
+<div class="w-form-item"><div class="w-input"><input class="w-input-input w-input-verify" id="loginVerify" name="verify" type="text" placeholder="验证码"><button class="w-btn-verify btn white-btn" type="button">获取验证码</button></div></div>
+
+
+
+<div class="w-form-item"><div class="w-input"><input class="w-input-input" id="phone1" name="phone1" type="text" placeholder="手机号码"></div></div>
+<div class="w-form-item"><div class="w-input"><input class="w-input-input w-input-verify" id="loginVerify1" name="verify1" type="text" placeholder="验证码"><button class="w-btn-verify btn white-btn" type="button">获取验证码</button></div></div>
+
+<script src="../../common/lib/jquery.min.js"></script>
+<script src="../../common/base.js"></script>
+<script src="js/layer/layer.js"></script>
+<script>
+
+    function verifyCountDown(options){
+        var dft = {
+            count: 60, //间隔函数，1秒执行
+            verifyBtn: null,
+            phoneInput: null,
+            verifyInput:null
+        };
+        window.VerifyCountDown = function(options){
+            var that = this;
+            that.curCount = '';//当前剩余秒数
+            that.InterValObj = null; //timer变量，控制时间
+            that.opts = extend(dft,options);
+
+            if(typeof VerifyCountDown._lev == 'undefined'){
+                VerifyCountDown.prototype.init = function(){
+                    that.listener();
+                };
+                VerifyCountDown.prototype.sendVerify = function() {
+                    that.curCount = that.opts.count;
+                    var phoneNum=$(that.opts.phoneInput).val();//手机号码
+                    if(phoneNum != ""){
+                        //设置button效果，开始计时
+                        $(that.opts.verifyBtn).attr("disabled", "true").html(that.curCount+'秒后重新获取');
+                        that.InterValObj = window.setInterval(that.SetRemainTime, 1000); //启动计时器，1秒执行一次
+                        //向后台发送处理数据
+                        $.ajax({
+                            type: "POST", //用POST方式传输
+                            url: HOST+'/account/getverifycode'+REQSUFFIX, //目标地址
+                            data: {"mobile": phoneNum},
+                            success: function (result){
+                                if(result.code == 200000){
+                                }else if(result.code == 500011){
+                                    layer.msg('请不要'+count+'内连续请求验证码');
+                                }else{
+                                    requestError();
+                                }
+                            },
+                            error:function(){
+                                requestError();
+                            }
+                        });
+                    }else{
+                        layer.msg("手机号码不能为空！");
+                    }
+                };
+                //timer处理函数
+                VerifyCountDown.prototype.SetRemainTime = function() {
+                    if (that.curCount == 0) {
+                        window.clearInterval(that.InterValObj);//停止计时器
+                        $(that.opts.verifyBtn).removeAttr("disabled");//启用按钮
+                        $(that.opts.verifyBtn).html("重新获取验证码");
+                    }
+                    else {
+                        that.curCount--;
+                        $(that.opts.verifyBtn).attr("disabled", "true").html(that.curCount+'秒后重新获取');
+                    }
+                };
+                VerifyCountDown.prototype.listener = function(){
+                    that.opts.verifyBtn.click(function () {
+                        if(validate.isNull($(that.opts.phoneInput).val())){
+                            layer.msg('请填写手机号码');
+                        }else if(validate.isPhone($(that.opts.phoneInput).val())){
+                            window.clearInterval(that.InterValObj);//停止计时器
+                            that.sendVerify();
+                        }else{
+                            layer.msg('手机格式错误');
+                        }
+                    });
+                };
+                VerifyCountDown._lev = true;
+            }
+
+        };
+        return new VerifyCountDown(options);
+    }
+
+
+    var down1 = verifyCountDown({
+        verifyBtn: $($('.w-btn-verify')[0]),
+        phoneInput: $('#phone'),
+        verifyInput:$('#loginVerify')
+    });
+    down1.init();
+    var down2 = verifyCountDown({
+        verifyBtn: $($('.w-btn-verify')[1]),
+        phoneInput: $('#phone1'),
+        verifyInput:$('#loginVerify1')
+    });
+    down2.init();
+</script>
+</body>
+</html>

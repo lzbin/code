@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>弹窗</title>
+
+    <style type="text/css">
+        .button1 {
+            background: #ebebeb;
+            border: 1px solid #888888;
+            color: #333333;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            height: 23px;
+            cursor: pointer
+        }
+    </style>
+</head>
+<body>
+<input type="button" value="  点这里  " class="button1" id="btn"/>
+<script>
+    ;(function(window,document,undefined){
+        var defaults = {
+            title : '',
+            content : '',
+            width : 200,
+            height : 200,
+            skin : '',
+            shade : true,
+            shadeClose : true,
+            onColse:function(){},
+            onSure:function(){},
+            onCancel:function(){}
+        };
+
+        var clientW = document.documentElement.clientWidth,
+            clientH = document.documentElement.clientHeight;
+
+        var common = {
+            cloneObj : function (oldObj) { //复制对象方法
+                if (typeof(oldObj) != 'object') return oldObj;
+                if (oldObj == null) return oldObj;
+                var newObj = {};
+                for (var i in oldObj)
+                    newObj[i] = common.cloneObj(oldObj[i]);
+                return newObj;
+            },
+            extend : function () { //扩展对象
+                var args = arguments;
+                if (args.length < 2) return;
+                var temp = this.cloneObj(args[0]); //调用复制对象方法
+                for (var n = 1; n < args.length; n++) {
+                    for (var i in args[n]) {
+                        temp[i] = args[n][i];
+                    }
+                }
+                return temp;
+            },
+            // 获得事件Event对象，用于兼容IE和FireFox
+            getEvent: function(event) {
+                return event || window.event;
+            },
+            createEle: function(tag,cls){
+                var d = document.createElement(tag);
+                if(cls){d.className = cls;}
+                return d;
+            }
+        };
+
+        var msgBox = function(options){
+            this.closeBtn = null;
+            this.opts = common.extend(defaults,options);
+        };
+
+        msgBox.prototype = {
+            init : function(){
+                var that = this;
+                that.render();
+                return that;
+            },
+            render : function(){
+                var that = this;
+                var opts = that.opts;
+                that.contentObj = common.createEle("div",'content');
+                that.bgObj = common.createEle("div",'bg');
+                that.table = common.createEle("table",'table');
+                document.body.appendChild(that.bgObj);
+                document.body.appendChild(that.contentObj);
+                that.contentObj.appendChild(that.table);
+            },
+
+            listener : function(){
+                var that = this;
+
+            },
+            close : function(){
+                var that = this;
+            }
+        };
+
+        window.MsgBox = function(options){
+            return new msgBox(options).init();
+        }
+    })(window,document);
+
+
+    var btn = document.getElementById('btn');
+    btn.onclick = function(){
+        MsgBox({
+            width : 300,
+            height : 200,
+            skin : 'msgbox-skin'
+        });
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,201 @@
+
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+
+    <title>jQuery文字逐行向上滚动代码</title>
+    <style>
+
+        *{ margin:0px; padding:0px; font-family:'微软雅黑'; -webkit-tap-highlight-color:rgba(0,0,0,0);  }
+        li{ list-style:none }
+        img{ border:none}
+        a{text-decoration:none;}
+
+        body{}
+
+        /* -------------------------摇奖排行榜-----------------------------------  */
+        .Top_Record{}
+
+        .record_Top{width:90%; height:50px; text-align:center; line-height:50px; margin:30px auto 0px; color:#fff;}
+
+
+        .topRec_List dl,.maquee{ width:90%; overflow:hidden; margin:0 auto; color:#7C7C7C}
+        .topRec_List dd{ float:left; text-align:center; border-bottom:1px solid #1B96EE; color:#1B96EE;}
+        .topRec_List dl dd:nth-child(1){ width:17%; height:40px; line-height:40px; }
+        .topRec_List dl dd:nth-child(2){ width:18%; height:40px; line-height:40px; }
+        .topRec_List dl dd:nth-child(3){ width:25%; height:40px; line-height:40px; }
+        .maquee{ height:195px;}
+        .topRec_List ul{ width:100%; height:195px;}
+        .topRec_List li{ width:100%; height:38px; line-height:38px; text-align:center; font-size:12px; border-bottom: 1px dashed #aaa;}
+        /*.topRec_List li:nth-child(2n){ background:#077cd0}*/
+        .topRec_List li div{ float:left;}
+        .topRec_List li div:nth-child(1){ width:17%;}
+        .topRec_List li div:nth-child(2){ width:18%;}
+        .topRec_List li div:nth-child(3){ width:25%;}
+
+        .apple a{display:block; text-decoration:none;}
+
+        .apple,.aa{ width:90%; height:50px; overflow:hidden; margin:30px auto; border:1px solid #1B96EE;}
+        .apple a,.aa a{ width:100%; height:50px; line-height:50px; text-indent:20px; color:#1B96EE;}
+        .aa {word-wrap:break-word;line-height:50px;  color:#1B96EE;}
+    </style>
+    <script src="../../common/lib/jquery.min.js"></script>
+</head>
+
+<body>
+
+<!-- -------------摇奖排行榜---------------  -->
+<div class="Top_Record">
+    <div class="record_Top"><p>摇奖排行榜</p></div>
+    <div class="topRec_List">
+        <dl>
+            <dd>姓名</dd>
+            <dd>奖项</dd>
+            <dd>时间</dd>
+        </dl>
+        <div class="maquee">
+            <ul>
+                <li>
+                    <div>王**</div>
+                    <div>中了30元</div>
+                    <div>2014/12/30 14:20</div>
+                </li>
+                <li>
+                    <div>王**</div>
+                    <div>中了30元</div>
+                    <div>2014/12/30 14:20</div>
+                </li>
+                <li>
+                    <div>王**</div>
+                    <div>中了30元</div>
+                    <div>2014/12/30 14:20</div>
+                </li>
+                <li>
+                    <div>王**</div>
+                    <div>中了30元</div>
+                    <div>2014/12/30 14:20</div>
+                </li>
+                <li>
+                    <div>王**</div>
+                    <div>中了30元</div>
+                    <div>2014/12/30 14:20</div>
+                </li>
+                <li>
+                    <div>王**</div>
+                    <div>中了30元</div>
+                    <div>2014/12/30 14:20</div>
+                </li>
+                <li>
+                    <div>王**</div>
+                    <div>中了30元</div>
+                    <div>2014/12/30 14:20</div>
+                </li>
+                <li>
+                    <div>王**</div>
+                    <div>中了30元</div>
+                    <div>2014/12/30 14:20</div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+<div class="apple">
+    <ul>
+        <li><a href="#" target="_blank">你是我的小丫小苹果 </a></li>
+        <li><a href="#" target="_blank">怎么爱你都不嫌多</a></li>
+        <li><a href="#" target="_blank">红红的小脸儿温暖我的心窝 </a></li>
+        <li><a href="#" target="_blank">点亮我生命的火 火火火火</a></li>
+        <li><a href="#" target="_blank">你是我的小丫小苹果 </a></li>
+        <li><a href="#" target="_blank">就像天边最美的云朵</a></li>
+        <li><a href="#" target="_blank">春天又来到了花开满山坡 </a></li>
+        <li><a href="#" target="_blank">种下希望就会收获</a></li>
+    </ul>
+</div>
+
+
+<script type="text/javascript">
+    function autoScroll(obj){
+        $(obj).find("ul").animate({
+            marginTop : "-39px"
+        },500,function(){
+            $(this).css({marginTop : "0px"}).find("li:first").appendTo(this);
+        })
+    }
+    $(function(){
+        setInterval('autoScroll(".maquee")',3000);
+        setInterval('autoScroll(".apple")',2000);
+    })
+
+
+    function IntervalScroll(ele,opts){
+        var defaults ={
+            isFresh: false,         //可选，是否实时获取数据
+            freshTime: 3000,         //可选，
+            url: '',                 //可选，获取数据url
+            cache: true,           //可选，数据缓存
+            cacheLine:100,           //可选，缓存数据条数
+            line:1,                  //可选，一次移动行数
+            minLine: 5,              //可选，数据最小行数
+            speed: 500,              //可选，移动速度
+            gap: 5000,               //可选，时间间隔
+            dftText: '暂无内容'      //可选，数据为空时显示内容
+        };
+
+        var InterScroll = function(ele,opt){
+            var that = this;
+            that.options = $.extend(defaults, opt);
+
+            if(typeof InterScroll._lev == 'undefined'){
+                InterScroll.prototype.init = function(){
+                    console.log('init');
+                    that.getData();
+                }
+                InterScroll.prototype.render = function(){
+                    var fragment=document.createDocumentFragment();
+                    var setItem = function(mobile,time,name){
+                        var item = '<li><div>'+mobile+'</div>' +
+                                '<div>'+ time +'</div>' +
+                                '<div>'+ name +'</div></li>';
+                    }
+                }
+                InterScroll.prototype.scrollUp = function(){
+
+                }
+                InterScroll.prototype.pause = function(){
+
+                }
+                InterScroll.prototype.getData = function(){
+                    console.log('getData');
+                    console.log(that.options.url);
+                    var iList = [];
+                    $.ajax({
+                        type:'GET',
+                        async:false,
+                        url:that.options.url,
+                        data:{},
+                        success:function(data){
+                            console.log(data);
+                            iList = data;
+                        }
+                    });
+                    return iList;
+                }
+                InterScroll.prototype._move = function(dest){
+
+                }
+            }
+            InterScroll._lev = true;
+        }
+
+        return new InterScroll(ele, opts);
+
+    }
+
+    var intervalScroll =  IntervalScroll($('.maquee').find("ul"),{url:'mock.json'});
+    intervalScroll.init();
+</script>
+</body>
+</html>

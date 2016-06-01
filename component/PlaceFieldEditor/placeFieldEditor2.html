@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <style type="text/css">
+        body
+        {
+            font-size: 12px;
+            color: #333;;
+        }
+
+        ul li
+        {
+            line-height: 30px;
+        }
+
+    </style>
+    <script src="../../common/lib/jquery.min.js"></script>
+    <script src="js/placeFieldEditor1.js"></script>
+    <script src="js/placeFieldEditor2.js"></script>
+    <script>
+        $(function ()
+        {
+            $("ul li div").each(function ()
+            {
+                new PlaceAreaEditor($(this).attr("id"), "请留言...", $(this));
+            });
+        });
+
+    </script>
+</head>
+<body>
+<ul>
+    <li id="1"><h3>我要改剧本，不让~~</h3>
+        <div>
+        </div>
+    </li>
+
+    <li id="2"><h3>悬崖上有桥么，有？没有~ </h3>
+        <div>
+        </div>
+    </li>
+    <li id="3"><h3>你敢打坏我的灯？不租~   </h3>
+        <div>
+        </div>
+    </li>
+</ul>
+</body>
+</html>

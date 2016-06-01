@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="../../common/base.js"></script>
+    <script src="ajax.js"></script>
+</head>
+<body>
+<script>
+    ajax({
+        url: "test.json",              //请求地址
+        type: "POST",                       //请求方式
+        data: { name: "super", age: 20 },        //请求参数
+        dataType: "json",
+        success: function (response) {
+            console.log(response);
+            // 此处放成功后执行的代码
+        },
+        fail: function (status) {
+            // 此处放失败后执行的代码
+        }
+    });
+
+    getJSONP('http://localhost/test/test.php',function(response){
+        console.log(response.name);
+    });
+</script>
+
+
+</body>
+</html>

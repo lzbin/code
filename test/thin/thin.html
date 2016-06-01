@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="thin.js"></script>
+</head>
+<body>
+<div>
+    <script type="text/javascript">
+        var div = document.createElement('div');
+        div.innerHTML = "test";
+        document.body.appendChild(div);
+    </script>
+</div>
+<a href="">链接</a>
+<form action="">
+    <select name="" id="">
+        <option value="">option1</option>
+        <option value="">option2</option>
+        <option value="">option3</option>
+        <option value="">option4</option>
+    </select>
+</form>
+
+
+<script>
+    thin.define("A", [], function() {
+        return "a";
+    });
+
+    thin.define("B", [], function() {
+        return "b";
+    });
+
+    thin.define("C", [], function() {
+        return "c";
+    });
+
+    thin.define("D", ["A", "B", "C"], function(B, A, C) {
+        return B + A + C;
+    });
+
+    var D = thin.use("D");
+    //console.log(D);
+
+
+    function getType(o)
+    {
+        var _t;
+        return ((_t = typeof(o)) == "object" ? o==null && "null" || Object.prototype.toString.call(o).slice(8,-1):_t).toLowerCase();
+    }
+    function deepCopy(destination,source)
+    {
+        for(var p in source)
+        {
+            if(getType(source[p])=="array"||getType(source[p])=="object")
+            {
+                destination[p]=getType(source[p])=="array"?[]:{};
+                arguments.callee(destination[p],source[p]);
+            }
+            else
+            {
+                destination[p]=source[p];
+            }
+        }
+    }
+    var test={a:"ss",b:"dd",c:{d:"css",e:"cdd"}};
+    var test1={};
+    deepCopy(test1,test);
+    test1.c.d="change"; //改变test1的c属性对象的d属性
+    //console.log(test.c.d);  //不影响test
+
+
+    document.write(getType({})+'<br>');
+    document.write(getType([])+'<br>');
+    document.write(getType('')+'<br>');
+    document.write(getType(1)+'<br>');
+    document.write(getType(undefined)+'<br>');
+    document.write(getType(null)+'<br>');
+    document.write(getType(/\s/)+'<br>');
+    document.write(getType(window)+'<br>');
+    document.write(document.forms[0].elements[0].options[0].firstChild.nodeType);
+
+    var zero = {};
+
+
+
+</script>
+</body>
+</html>
