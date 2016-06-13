@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="emitter.js"></script>
+</head>
+<body>
+<script>
+    function aEat(callback){
+        setTimeout(function(){
+            callback();
+        },1000);
+    }
+    function bEat(callback){
+        setTimeout(function(){
+            callback();
+        },1000);
+    }
+    var emitter = new Emitter();
+    emitter.once('a-eat-ok',function(data){
+        console.log(data);
+    });
+    emitter.on('b-eat-ok',function(data){
+        console.log(data);
+    });
+    /*emitter.when("a-eat-ok","b-eat-ok",function(data){
+        console.log(data,"结账");
+    });*/
+
+    setTimeout(function(){
+        aEat(function(){
+            emitter.fire('a-eat-ok','a吃完了。。。');
+        });
+        bEat(function(){
+            emitter.fire('b-eat-ok','b吃完了。。。');
+        });
+    },1000);
+
+
+    setTimeout(function(){
+        aEat(function(){
+            emitter.fire('a-eat-ok','a又吃完了。。。');
+        });
+        bEat(function(){
+            emitter.fire('b-eat-ok','b又吃完了。。。');
+        });
+    },1500);
+
+</script>
+</body>
+</html>
