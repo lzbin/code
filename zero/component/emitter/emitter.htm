@@ -18,32 +18,30 @@
         },1000);
     }
     var emitter = new Emitter();
-    emitter.once('a-eat-ok',function(data){
+    emitter.on('finish-en-homework',function(data){
         console.log(data);
     });
-    emitter.on('b-eat-ok',function(data){
+    emitter.on('finish-cn-homework',function(data){
         console.log(data);
     });
-    /*emitter.when("a-eat-ok","b-eat-ok",function(data){
-        console.log(data,"结账");
-    });*/
-
+    emitter.when("finish-en-homework","finish-cn-homework",function(data){
+        console.log(data,"可以去玩了");
+    });
     setTimeout(function(){
         aEat(function(){
-            emitter.fire('a-eat-ok','a吃完了。。。');
+            emitter.fire('finish-en-homework','英语作业做完了。。。');
         });
         bEat(function(){
-            emitter.fire('b-eat-ok','b吃完了。。。');
+            emitter.fire('finish-cn-homework','语文作业做完了。。。');
         });
     },1000);
 
-
     setTimeout(function(){
         aEat(function(){
-            emitter.fire('a-eat-ok','a又吃完了。。。');
+            emitter.fire('finish-en-homework','英语作业又做了一遍。。。');
         });
         bEat(function(){
-            emitter.fire('b-eat-ok','b又吃完了。。。');
+            emitter.fire('finish-cn-homework','语文作业又做了一遍。。。');
         });
     },1500);
 

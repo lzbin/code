@@ -16,19 +16,13 @@
     Emitter.prototype = {
         addListener : fAddListener,
         removeListener : fRemoveListener,
-        once: function(eventname,callback){
-            function on(){
-                this.removeListener(eventname,on);
-                callback.apply(this,arguments);
-            }
-            this.on(eventname,on);
-            return this;
-        },
+        once: fOnce,
         fire : fEmit,
         emit: fEmit,
         on: fAddListener,
         when : fWhen,
-        off: fRemoveListener
+        off: fRemoveListener,
+        listeners: fListeners
     };
 
     //========= method =========//
@@ -71,6 +65,14 @@
         }
     }
 
+    function fOnce(eventname,callback){
+        function on(){
+            this.removeListener(eventname,on);
+            callback.apply(this,arguments);
+        }
+        this.on(eventname,on);
+        return this;
+    }
     function fEmit(eventname){
         var cbs = this._callbacks,cbList,i, l,
             args = Array.prototype.slice.call(arguments, 1);
@@ -123,5 +125,15 @@
             _bind(events[i]);
         }
         return this;
+    }
+    /**
+     * Return array of callbacks for `eventname`.
+     *
+     * @param {String} eventname
+     * @return {Array}
+     * @api public
+     */
+    function fListeners(eventname){
+        return this._callbacks[eventname] || [];
     }
 })();
