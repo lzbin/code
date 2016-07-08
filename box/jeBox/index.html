@@ -1,0 +1,267 @@
+
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>jeBox弹层组件</title>
+	<meta name="description" content="jeBox是一款备受青睐的web弹层组件，她具备全方位的解决方案，致力于服务各水平段的开发人员，您的页面会轻松地拥有丰富友好的操作体验。" />
+	<meta name="keywords" content="jeBox,jeBox弹层组件,弹出层,弹层" />
+	<meta name="baidu-site-verification" content="WwLFlaCUCz" />
+	<link href="css/jeui.css" rel="stylesheet" type="text/css">
+	<link href="css/index.css" rel="stylesheet" type="text/css">
+
+	<link href="skin/default.css" rel="stylesheet" type="text/css">
+	<style>
+		#logBox{
+			width: 350px;
+			height: 300px;
+			overflow: auto;
+			background: #606c71;
+			position: fixed;
+			top: 100px;
+			left:50px;
+			padding: 10px;
+		}
+	</style>
+</head>
+
+<body class="fmy" style="background:#fff;">
+<div id="logBox"></div>
+
+<div class="deftopbox">
+	<div class="topnavbox f18">
+		<ul>
+			<li><a href="http://www.jayui.com/">首页</a></li>
+			<li><a href="http://www.jayui.com/jebox/api.html" target="_blank">文档API</a></li>
+			<li><a href="http://fly.jayui.com/" target="_blank">社区</a></li>
+		</ul>
+	</div>
+</div>
+
+<div class="warpbox pt10 ovh">
+	<div class="workcon pb30">
+
+		<blockquote id="notice">
+			jeBox是一款备受青睐的web弹层组件，她具备全方位的解决方案，致力于服务各水平段的开发人员，您的页面会轻松地拥有丰富友好的操作体验。她不依赖任何的第三方库，纯原生JS开发的。<br/><span class="green b">您可以免费将她用于任何个人项目。但是不能去除头部信息。</span>  QQ群：516754269
+		</blockquote>
+		<h2 class="f18">浏览器兼容</h2>
+		<p class="pt10">此兼容，是根据我使用的一些js方法函数的支持情况来判断的。设备过少，下面的我们的主要兼容目标</p>
+		<blockquote>
+			1、Internet Explorer >=8 (Windows)<br/>
+			2、Safari (Mac)<br/>
+			3、Chrome (Windows, Mac, iOS, Linux, Chrome OS)<br/>
+			4、Firefox (Windows, Mac,  Linux, Firefox OS)<br/>
+			5、谷歌内核浏览器，如360浏览器，搜狗浏览器，QQ浏览器
+		</blockquote>
+		<h3 class="f18">实例演示</h3>
+		<blockquote id="yanshi">
+			<a href="javascript:;" class="ysbtn">初体验</a>
+			<a href="javascript:;" class="ysbtn">询问层</a>
+			<a href="javascript:;" class="ysbtn">提示层</a>
+			<a href="javascript:;" class="ysbtn">页面层</a>
+			<a href="javascript:;" class="ysbtn">捕获页</a>
+			<a href="javascript:;" class="ysbtn">iframe层</a>
+			<a href="javascript:;" class="ysbtn">iframe窗</a>
+			<a href="javascript:;" class="ysbtn">加载层</a>
+			<a href="javascript:;" class="ysbtn">loading层</a>
+
+		</blockquote>
+<pre class="code mt15" style="height:400px; overflow:auto;">
+<code class="language-javascript">
+	//初体验
+	var icon = 0;
+	(function changeIcon(){
+	var idxs = jeBox.alert('Hi，你好！ 点击确定更换图标', {
+	icon: icon,
+	maskClose: true,
+	title: icon === 0 ? '初体验 - jeBox 1.0' : 'icon：'+icon + ' - jeBox 1.0'
+	}, function(idx){
+	jeBox.close(idx);
+	changeIcon();
+	});
+	if(9 === ++icon) jeBox.close(idxs);
+	}());
+
+	//询问层
+	jeBox.open({
+	cell:"jbx",
+	title:"你的选择",
+	area:["400px","150px"],
+	content:'您是如何看待前端开发？',
+	masklock : true ,
+	button: [ {name: '重要'},{name: '奇葩'}],
+	yesfun: function(index){
+	jeBox.msg('的确很重要', {icon: 2,time:2});
+	jeBox.close(index);
+	},
+	nofun:function(){
+	jeBox.msg('也可以这样认为', {icon: 1,time:10,button:[{name:"确定"},{name:"取消"}]});
+	}
+	})
+
+	//提示层
+	jeBox.msg('我就是要提示！');
+
+	//页面层
+	jeBox.open({
+	area:["400px","240px"],
+	content:'<div style="padding:20px;">即直接给content传入html字符<br>当内容宽高超过定义宽高，会自动出现滚动条。<br><br><br><br><br><br><br><br><br><br><br>很高兴在下面遇见你</div>',
+	masklock : true
+	})
+
+	//捕获页
+	jeBox.open({
+	area:["400px","250px"],
+	content: document.getElementById("notice"),
+	masklock : true
+	})
+
+	//iframe层
+	jeBox.open({
+	title:"mBox mobile页",
+	type:2,
+	padding:"0",
+	area:["450px","80%"],
+	content: "http://www.jayui.com/mbox/",
+	masklock : true
+	})
+
+	//iframe窗
+	jeBox.open({
+	title:"很多时候，我们想最大化看，比如像这个页面",
+	type:2,
+	maxBtn:true,
+	padding:"0",
+	area:["80%","80%"],
+	content: ["http://www.jayui.com/","no"],
+	masklock : true
+	})
+
+	//加载层
+	var er = jeBox.loading(1,"玩命加载中");
+	setTimeout(function(){
+	jeBox.close(er)
+	}, 5000);
+
+	//loading层
+	var san = jeBox.loading(2,"Loading...");
+	setTimeout(function(){
+	jeBox.close(san)
+	}, 5000);
+</code>
+</pre>
+
+		<h3 class="f18">再探深处</h3>
+		<blockquote>
+			<p class="f16 mt8 mb10">信息框</p>
+			<div class="infor">
+				<a href="javascript:;" class="ysbtn">信息框-例1</a>
+				<a href="javascript:;" class="ysbtn">信息框-例2</a>
+				<a href="javascript:;" class="ysbtn">信息框-例3</a>
+				<a href="javascript:;" class="ysbtn">信息框-例4</a>
+			</div>
+			<p class="f16 mt15 mb10">页面层/iframe层</p>
+			<div class="pageiframe">
+				<a href="javascript:;" class="ysbtn">页面层-自定义</a>
+				<a href="javascript:;" class="ysbtn">iframe-子父操作</a>
+				<a href="javascript:;" class="ysbtn">iframe-多媒体</a>
+				<a href="javascript:;" class="ysbtn">iframe-禁滚动条</a>
+			</div>
+			<p class="f16 mt15 mb10">加载层</p>
+			<div class="jeloading">
+				<a href="javascript:;" class="ysbtn">加载风格1</a>
+				<a href="javascript:;" class="ysbtn">加载风格2</a>
+				<a href="javascript:;" class="ysbtn">加载风格3</a>
+				<a href="javascript:;" class="ysbtn">加载风格4</a>
+			</div>
+		</blockquote>
+<pre class="code mt15" style="height:400px; overflow:auto;">
+<code class="language-javascript">
+	//信息框-例1
+	jeBox.alert('见到你真的很高兴', {icon: 7});
+	//信息框-例2
+	jeBox.msg('你确定你很帅么？', {
+	time: 0 ,
+	button: [ {name: '必须啊'},{name: '丑到爆'}],
+	boxStyle:{background:"#333",  border:"1px solid #333", "border-radius":"4px", color:"#fff",opacity:"0.93", filter:"alpha(opacity=90)"},
+	yesfun: function(index){
+	jeBox.close(index);
+	jeBox.msg('雅蠛蝶 O.o', { icon: 7 });
+	}
+	});
+	//信息框-例3
+	jeBox.msg('这是最常用的吧');
+	//信息框-例4
+	jeBox.msg('不开心。。', {icon: 6});
+
+
+	//页面层-自定义
+	jeBox.open({
+	title:false,
+	closeBtn:false,
+	maskClose:true,
+	area:["450px","250px"],
+	content: "自定义HTML内容",
+	boxStyle:{background:"#81BA25",  border:"1px solid #81BA25", "border-radius":"4px", color:"#fff"}
+	})
+	//iframe-子父操作
+	jeBox.open({
+	type: 2,
+	area: ['700px', '530px'],
+	maxBtn: true,
+	scrollbar: false,
+	content: 'iframe.html'
+	});
+	//iframe-多媒体
+	jeBox.open({
+	title:false,
+	closeBtn:false,
+	type:2,
+	padding:"0",
+	area:['630px', '360px'],
+	content: "http://player.youku.com/embed/XMTI4MTE1NTY0MA",
+	maskClose:true
+	})
+	jeBox.msg('点击任意处关闭');
+	//iframe-禁滚动条
+	jeBox.open({
+	title:"禁滚动条",
+	type:2,
+	padding:"0",
+	area:["450px","80%"],
+	content: ["http://www.jayui.com/mbox/","no"],
+	masklock : true
+	})
+
+
+	//加载风格1
+	var one = jeBox.loading(1);
+	setTimeout(function(){
+	jeBox.close(one)
+	}, 3000);
+	//加载风格2
+	jeBox.loading(1,"玩命加载中",{time:3});
+	//加载风格3
+	jeBox.loading(2,"加载中...",{time:3});
+	//加载风格4
+	jeBox.loading(3,"Loading...",{time:3});
+</code>
+</pre>
+
+	</div>
+</div>
+<div class="footwork">
+	<div class="woauto f16">
+
+	</div>
+</div>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/jebox.js"></script>
+<script type="text/javascript" src="js/demo.js"></script>
+
+
+<script>
+
+</script>
+</body>
+</html>

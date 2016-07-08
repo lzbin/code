@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        #box,#box2{
+            width: 100px;
+            height: 100px;
+            background: #606c71;
+        }
+    </style>
+    <script src="lib/_zxx.js"></script>
+</head>
+<body>
+<div id="box" class="box">
+    <div class="inner">
+        <input type="button" id="btn" class="btn" value="-->"/>
+    </div>
+</div>
+<div id="box2" class="box">
+    <input type="button" id="btn2" class="btn" value="--<"/>
+</div>
+<script>
+    console.log($('body #box div.inner .btn'));
+    console.log($('input[type=button]'));
+</script>
+</body>
+</html>
